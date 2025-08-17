@@ -1,0 +1,150 @@
+name: CI HLG
+
+on:
+  pull_request:
+    branches:
+      - 'release/*'
+  workflow_dispatch:
+  pull_request_target:
+    types: [ closed ]
+    branches:
+      - 'release/*'
+
+jobs:
+  check-application:
+    # Não executar este job quando a PR for fechada
+    if: github.event_name != 'pull_request_target'
+    strategy:
+      matrix:
+        ubuntu: [ 'ubuntu-latest' ]
+    runs-on: ${{ matrix.ubuntu }}
+
+    env:
+      QUARKUS_PROFILE: dev
+      API_VERSION: hlg
+
+
+    #    services:
+    #      mysql:
+    #        image: "mysql:8.2.0-oraclelinux8"
+    #        env:
+    #          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
+    #          MYSQL_DATABASE: ${{ secrets.DB_NAME }}
+    #        ports:
+    #          - 3306:3306
+    #        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=10
+    #
+    #    env:
+    #      DB_NAME: ${{ secrets.DB_NAME }}
+    #      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+    #      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+    #      DB_HOST: 127.0.0.1
+    #      DB_PORT: 3306
+
+    steps:
+      - name: Checkout codigo
+        uses: actions/checkout@v4.0.0
+
+      - name: check PR head branch
+        run: |
+          if [[ "${{ github.head_ref }}" != develop ]]; then
+            echo "PRs to main must come from a develop branch. PR is from '${{ github.head_ref }}'"
+            exit 1
+          fi
+
+      - name: Instalar SDKMAN
+        run: |
+          curl -s "https://get.sdkman.io" | bash
+          source "$HOME/.sdkman/bin/sdkman-init.sh"
+        shell: bash
+
+      - name: Configurar ambiente com SDKMAN
+        run: |
+          source "$HOME/.sdkman/bin/sdkman-init.sh"
+          sdk env install
+          sdk current java
+        shell: bash
+
+      - name: Get branch name
+        shell: bash
+        run: echo "BRANCH_NAME=$(echo ${GITHUB_BASE_REF#release/} | cut -d'/' -f2)" >> $GITHUB_ENV
+
+      - name: Update API Version
+        run: echo "API_VERSION=hlg-${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
+
+      - name: Compile o Projeto com Quarkus
+        run: |
+          source "$HOME/.sdkman/bin/sdkman-init.sh"
+          ./gradlew clean build -Dquarkus.profile=dev -x test --no-daemon
+        shell: bash
+
+      - name: Rodar os Testes
+        run: |
+          source "$HOME/.sdkman/bin/sdkman-init.sh"
+          ./gradlew test -Dquarkus.profile=dev --no-daemon
+        shell: bash
+
+  build-push-image:
+    # Executar apenas quando a PR for fechada e mesclada
+    if: github.event_name == 'pull_request_target' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    env:
+      QUARKUS_PROFILE: dev
+
+    steps:
+      - name: Checkout código
+        uses: actions/checkout@v4
+
+      - name: Instalar SDKMAN
+        run: |
+          curl -s "https://get.sdkman.io" | bash
+          source "$HOME/.sdkman/bin/sdkman-init.sh"
+        shell: bash
+
+      - name: Configurar ambiente com SDKMAN
+        run: |
+          source "$HOME/.sdkman/bin/sdkman-init.sh"
+          sdk env install
+          sdk current java
+        shell: bash
+
+      - name: Get branch name
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request_target" ]]; then
+            REF="${{ github.event.pull_request.base.ref }}"
+            echo "BRANCH_NAME=$(echo ${REF#release/} | cut -d'/' -f2)" >> $GITHUB_ENV
+          else
+            echo "BRANCH_NAME=$(echo ${GITHUB_BASE_REF#release/} | cut -d'/' -f2)" >> $GITHUB_ENV
+          fi
+
+      - name: Update API Version
+        run: echo "API_VERSION=hlg-${{ env.BRANCH_NAME }}" >> $GITHUB_ENV
+
+      - name: Build com Quarkus
+        run: |
+          source "$HOME/.sdkman/bin/sdkman-init.sh"
+          ./gradlew clean build -Dquarkus.profile=dev --no-daemon
+        shell: bash
+
+      - name: Setup QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to DockerHub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and push
+        id: docker_build
+        uses: docker/build-push-action@v5
+        with:
+          push: true
+          tags: diegoneves/sense-core-server:${{ env.BRANCH_NAME }}-beta
+          context: .
+          file: ./Dockerfile

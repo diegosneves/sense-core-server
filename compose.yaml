@@ -1,0 +1,63 @@
+services:
+
+  database:
+    image: "mysql:8.2.0-oraclelinux8"
+    container_name: sense_core_mysql_db
+    environment:
+      - MYSQL_DATABASE=${DB_DATABASE}
+      - MYSQL_ROOT_PASSWORD=${DB_USER_PASSWORD}
+    ports:
+      - "3309:3309"
+    command: --port=3309
+    volumes:
+      - db-mysql-sense-core:/var/lib/mysql
+    networks:
+      - sense_services
+      - auth_services
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "--port=3309", "--silent"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  sense-core-server:
+    image: diegoneves/sense-core-server:latest
+    container_name: sense-core-api
+    ports:
+      - "8080:8080"
+      - "5005:5005"
+    depends_on:
+      database:
+        condition: service_healthy
+    environment:
+      # Configurações Quarkus para banco de dados
+      - QUARKUS_DATASOURCE_JDBC_URL=jdbc:mysql://database:3309/${DB_NAME}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - QUARKUS_DATASOURCE_USERNAME=${DB_USERNAME}
+      - QUARKUS_DATASOURCE_PASSWORD=${DB_PASSWORD}
+      - QUARKUS_HTTP_HOST=0.0.0.0
+      - QUARKUS_HTTP_PORT=8080
+      # Configurações da aplicação
+      - API_VERSION=${API_VERSION:-latest}
+      - QUARKUS_PROFILE=${QUARKUS_PROFILE:-prod}
+      # Para debug remoto - CORRIGIDO
+      - JAVA_OPTS=-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 --enable-native-access=ALL-UNNAMED
+    networks:
+      - sense_services
+      - auth_services
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/q/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 45s
+
+volumes:
+  db-mysql-sense-core:
+
+networks:
+  sense_services:
+    driver: bridge
+  auth_services:
+    external: true
