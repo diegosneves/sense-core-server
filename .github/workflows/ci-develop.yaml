@@ -1,0 +1,87 @@
+name: CI DEVELOP
+
+on:
+  pull_request:
+    branches:
+      - develop
+  workflow_dispatch:
+
+jobs:
+  check-application:
+    strategy:
+      matrix:
+        ubuntu: [ 'ubuntu-latest' ]
+    runs-on: ${{ matrix.ubuntu }}
+
+    env:
+      QUARKUS_PROFILE: dev
+      API_VERSION: dev
+
+
+    #    services:
+#      mysql:
+#        image: "mysql:8.2.0-oraclelinux8"
+#        env:
+#          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
+#          MYSQL_DATABASE: ${{ secrets.DB_NAME }}
+#        ports:
+#          - 3306:3306
+#        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=10
+#
+#    env:
+#      DB_NAME: ${{ secrets.DB_NAME }}
+#      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+#      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+#      DB_HOST: 127.0.0.1
+#      DB_PORT: 3306
+
+    steps:
+      - name: Checkout codigo
+        uses: actions/checkout@v4.0.0
+
+      - name: Cache SDKMAN
+        uses: actions/cache@v4
+        with:
+          path: ~/.sdkman
+          key: ${{ runner.os }}-sdkman-${{ hashFiles('.sdkmanrc') }}
+          restore-keys: |
+            ${{ runner.os }}-sdkman-
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Instalar SDKMAN
+        run: |
+          if [ ! -d "$HOME/.sdkman" ]; then
+            curl -s "https://get.sdkman.io" | bash
+          fi
+          source "$HOME/.sdkman/bin/sdkman-init.sh"
+        shell: bash
+
+
+      - name: Configurar ambiente com SDKMAN
+        run: |
+          source "$HOME/.sdkman/bin/sdkman-init.sh"
+          sdk env install
+          sdk current java
+        shell: bash
+
+      - name: Compile o Projeto com Quarkus
+        run: |
+          source "$HOME/.sdkman/bin/sdkman-init.sh"
+          ./gradlew clean build -Dquarkus.profile=dev -x test --no-daemon
+        shell: bash
+
+      - name: Rodar os Testes
+        run: |
+          source "$HOME/.sdkman/bin/sdkman-init.sh"
+          ./gradlew test -Dquarkus.profile=dev --no-daemon
+        shell: bash
+
