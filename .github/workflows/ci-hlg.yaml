@@ -52,11 +52,32 @@ jobs:
             exit 1
           fi
 
+      - name: Cache SDKMAN
+        uses: actions/cache@v4
+        with:
+          path: ~/.sdkman
+          key: ${{ runner.os }}-sdkman-${{ hashFiles('.sdkmanrc') }}
+          restore-keys: |
+            ${{ runner.os }}-sdkman-
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
       - name: Instalar SDKMAN
         run: |
-          curl -s "https://get.sdkman.io" | bash
+          if [ ! -d "$HOME/.sdkman" ]; then
+            curl -s "https://get.sdkman.io" | bash
+          fi
           source "$HOME/.sdkman/bin/sdkman-init.sh"
         shell: bash
+
 
       - name: Configurar ambiente com SDKMAN
         run: |
@@ -96,11 +117,32 @@ jobs:
       - name: Checkout código
         uses: actions/checkout@v4
 
+      - name: Cache SDKMAN
+        uses: actions/cache@v4
+        with:
+          path: ~/.sdkman
+          key: ${{ runner.os }}-sdkman-${{ hashFiles('.sdkmanrc') }}
+          restore-keys: |
+            ${{ runner.os }}-sdkman-
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
       - name: Instalar SDKMAN
         run: |
-          curl -s "https://get.sdkman.io" | bash
+          if [ ! -d "$HOME/.sdkman" ]; then
+            curl -s "https://get.sdkman.io" | bash
+          fi
           source "$HOME/.sdkman/bin/sdkman-init.sh"
         shell: bash
+
 
       - name: Configurar ambiente com SDKMAN
         run: |
