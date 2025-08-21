@@ -29,6 +29,9 @@ public class UserResource {
             @APIResponse(responseCode = "400", description = "Invalid request body")
     })
     public Response createUser(final UserCreateRequest request) {
+        if (request == null) {
+            return Response.status(400).build();
+        }
         final var response = UserResponse.of(
                 request.name(),
                 request.email(),
