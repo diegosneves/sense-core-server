@@ -8,6 +8,16 @@ If you want to learn more about Quarkus, please visit its website: <https://quar
 
 You can run your application in dev mode that enables live coding using:
 
+
+---
+
+- [Swagger](http://localhost:8080/q/swagger-ui/)
+
+[//]: # (- [Swagger]&#40;http://localhost:8080/q/swagger-ui/&#41;)
+
+---
+
+
 ```shell script
 ./gradlew quarkusDev
 ```
