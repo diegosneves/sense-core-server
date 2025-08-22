@@ -1,8 +1,10 @@
 package br.com.diegosneves.resources.user;
 
+import br.com.diegosneves.enums.UserProfile;
 import br.com.diegosneves.requests.user.UserCreateRequest;
 import br.com.diegosneves.responses.user.UserResponse;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
@@ -28,6 +30,7 @@ public class UserResource {
                     content = @Content(schema = @Schema(implementation = UserResponse.class))),
             @APIResponse(responseCode = "400", description = "Invalid request body")
     })
+    @APIResponse(responseCode = "422", description = "User already exists")
     public Response createUser(final UserCreateRequest request) {
         if (request == null) {
             return Response.status(400).build();
@@ -38,6 +41,28 @@ public class UserResource {
                 request.phone(),
                 request.profile(),
                 request.username()
+        );
+        return Response.ok(response).build();
+    }
+
+    @GET
+    @Path("/{userId}")
+    @Operation(summary = "Fetch user", description = "Fetches a user by its ID")
+    @APIResponse(
+            responseCode = "200", description = "User fetched successfully",
+            content = @Content(schema = @Schema(implementation = UserResponse.class))
+    )
+    @APIResponse(
+            responseCode = "400", description = "Invalid user ID",
+            content = @Content(schema = @Schema(implementation = String.class))
+    )
+    public Response fetchUser(final String userId) {
+        final var response = UserResponse.of(
+                "Mock nome",
+                "Mock email",
+                "Mock telefone",
+                UserProfile.ADMIN,
+                "Mock username - ID: " + userId
         );
         return Response.ok(response).build();
     }
