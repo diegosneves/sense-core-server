@@ -1,0 +1,34 @@
+name: 🚀 Feature Request
+description: Sugira uma nova funcionalidade
+title: "[FEATURE]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## Obrigado por sugerir uma nova funcionalidade!
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problema relacionado
+      description: Está relacionado a algum problema? Descreva.
+      placeholder: Ex. Fico frustrado quando [...]
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solução proposta
+      description: Como você gostaria que isso fosse resolvido?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativas consideradas
+      description: Quais outras soluções você considerou?
+    validations:
+      required: false
