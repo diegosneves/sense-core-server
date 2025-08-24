@@ -22,6 +22,22 @@ jobs:
     env:
       QUARKUS_PROFILE: prod
       API_VERSION: prod
+      DB_DATABASE: ${{ secrets.DB_DATABASE }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+
+    services:
+      mysql:
+        image: "mysql:8.2.0-oraclelinux8"
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.DB_DATABASE }}
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=10
+
 
     steps:
       - name: Checkout código
@@ -175,3 +191,7 @@ jobs:
             diegoneves/sense-core-server:${{ env.API_VERSION }}
           context: .
           file: ./Dockerfile
+          build-args: |
+            DB_DATABASE: ${{ secrets.DB_DATABASE }}
+            DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+            DB_USERNAME: ${{ secrets.DB_USERNAME }}

@@ -11,11 +11,21 @@ repositories {
 dependencies {
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
     implementation 'io.quarkus:quarkus-rest'
-    implementation 'io.quarkus:quarkus-rest-jackson'
     implementation 'io.quarkus:quarkus-smallrye-openapi'
     implementation 'io.quarkus:quarkus-smallrye-fault-tolerance'
     implementation 'io.quarkus:quarkus-arc'
     implementation 'io.quarkus:quarkus-vertx-http'
+    implementation 'io.quarkus:quarkus-hibernate-orm-panache'
+    implementation 'io.quarkus:quarkus-jdbc-h2'
+    implementation 'io.quarkus:quarkus-flyway'
+    implementation 'io.quarkus:quarkus-jdbc-mysql'
+    implementation 'io.quarkus:quarkus-rest-jsonb'
+    implementation 'io.quarkus:quarkus-smallrye-jwt'
+    implementation 'io.quarkus:quarkus-opentelemetry'
+    implementation 'io.opentelemetry.instrumentation:opentelemetry-jdbc' // Precisa adicionar manual, pois nao é encontrado no https://code.quarkus.io
+    implementation 'io.quarkus:quarkus-micrometer'
+    implementation 'io.quarkus:quarkus-micrometer-registry-prometheus'
+    implementation 'io.quarkus:quarkus-smallrye-health'
     testImplementation 'io.quarkus:quarkus-junit5'
     testImplementation 'io.rest-assured:rest-assured'
 }
