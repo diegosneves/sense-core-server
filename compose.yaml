@@ -5,7 +5,7 @@ services:
     container_name: sense_core_mysql_db
     environment:
       - MYSQL_DATABASE=${DB_DATABASE}
-      - MYSQL_ROOT_PASSWORD=${DB_USER_PASSWORD}
+      - MYSQL_ROOT_PASSWORD=${DB_PASSWORD}
     ports:
       - "3309:3309"
     command: --port=3309
@@ -20,6 +20,26 @@ services:
       timeout: 10s
       retries: 3
       start_period: 30s
+
+  sense-core-telemetry:
+    image: cr.jaegertracing.io/jaegertracing/jaeger:2.9.0
+    container_name: sense-core-telemetry
+    environment:
+      - COLLECTOR_OTLP_ENABLE=true
+      - SPAN_STORAGE_TYPE=badger
+      - BADGER_EPHEMERAL=false
+      - BADGER_SPAN_STORE_TTL=168h0m0s  # 7 dias de retenção
+    ports:
+      - "16686:16686"
+      - "4317:4317"
+      - "4318:4318"
+      - "5778:5778"
+      - "9411:9411"
+    volumes:
+      - jaeger-data:/badger
+    networks:
+      - sense_services
+      - auth_services
 
   sense-core-server:
     image: diegoneves/sense-core-server:latest
@@ -40,6 +60,10 @@ services:
       # Configurações da aplicação
       - API_VERSION=${API_VERSION:-latest}
       - QUARKUS_PROFILE=${QUARKUS_PROFILE:-prod}
+      # Configurações de telemetria/observabilidade
+      - QUARKUS_OTEL_EXPORTER_OTLP_TRACES_ENDPOINT=http://sense-core-telemetry:4317
+      - QUARKUS_OTEL_SERVICE_NAME=sense-core-server
+      - QUARKUS_OTEL_TRACES_EXPORTER=otlp
       # Para debug remoto - CORRIGIDO
       - JAVA_OPTS=-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 --enable-native-access=ALL-UNNAMED
     networks:
@@ -55,6 +79,7 @@ services:
 
 volumes:
   db-mysql-sense-core:
+  jaeger-data:
 
 networks:
   sense_services:

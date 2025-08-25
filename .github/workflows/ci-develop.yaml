@@ -16,20 +16,25 @@ jobs:
     env:
       QUARKUS_PROFILE: dev
       API_VERSION: dev
+      DB_DATABASE: ${{ secrets.DB_DATABASE }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_USERNAME: ${{ secrets.DB_USERNAME }}
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
 
 
-    #    services:
-#      mysql:
-#        image: "mysql:8.2.0-oraclelinux8"
-#        env:
-#          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
-#          MYSQL_DATABASE: ${{ secrets.DB_NAME }}
-#        ports:
-#          - 3306:3306
-#        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=10
-#
+    services:
+      mysql:
+        image: "mysql:8.2.0-oraclelinux8"
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          MYSQL_DATABASE: ${{ secrets.DB_DATABASE }}
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=10
+
 #    env:
-#      DB_NAME: ${{ secrets.DB_NAME }}
+#      DB_DATABASE: ${{ secrets.DB_DATABASE }}
 #      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
 #      DB_USERNAME: ${{ secrets.DB_USERNAME }}
 #      DB_HOST: 127.0.0.1
