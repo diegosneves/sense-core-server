@@ -15,7 +15,7 @@ services:
       - sense_services
       - auth_services
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "--port=3309", "--silent"]
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "--port=3309", "--silent" ]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -71,11 +71,30 @@ services:
       - auth_services
     restart: unless-stopped
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/q/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/q/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 45s
+
+  sense-core-web:
+    image: diegoneves/sense-core-web:sandbox
+    container_name: sense-core-web
+    ports:
+      - "5143:5143"
+#    depends_on:
+#      sense-core-server:
+#        condition: service_healthy
+    networks:
+      - sense_services
+      - auth_services
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:5143" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
 
 volumes:
   db-mysql-sense-core:
