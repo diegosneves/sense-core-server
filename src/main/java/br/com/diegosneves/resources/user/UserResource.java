@@ -1,6 +1,5 @@
 package br.com.diegosneves.resources.user;
 
-import br.com.diegosneves.enums.UserProfile;
 import br.com.diegosneves.exceptions.ApiErrorResponse;
 import br.com.diegosneves.requests.user.UserCreateRequest;
 import br.com.diegosneves.responses.user.UserCreatedResponse;

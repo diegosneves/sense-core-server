@@ -52,7 +52,7 @@ services:
         condition: service_healthy
     environment:
       # Configurações Quarkus para banco de dados
-      - QUARKUS_DATASOURCE_JDBC_URL=jdbc:mysql://database:3309/${DB_NAME}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+      - QUARKUS_DATASOURCE_JDBC_URL=jdbc:mysql://database:3309/${DB_DATABASE}?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
       - QUARKUS_DATASOURCE_USERNAME=${DB_USERNAME}
       - QUARKUS_DATASOURCE_PASSWORD=${DB_PASSWORD}
       - QUARKUS_HTTP_HOST=0.0.0.0
