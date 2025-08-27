@@ -1,12 +1,28 @@
 name: 🚀 Feature Request
 description: Sugira uma nova funcionalidade
-title: "[FEATURE]: "
-labels: ["enhancement"]
+title: "[FEATURE] - "
+labels: ["feature"]
 body:
   - type: markdown
     attributes:
       value: |
         ## Obrigado por sugerir uma nova funcionalidade!
+
+  - type: checkboxes
+    id: components
+    attributes:
+      label: Componentes afetados
+      description: Selecione quais componentes esta feature afeta
+      options:
+        - label: Server (Backend)
+          required: false
+        - label: Web (Frontend)
+          required: false
+        - label: Mobile
+          required: false
+        - label: API
+          required: false
+
 
   - type: textarea
     id: problem
