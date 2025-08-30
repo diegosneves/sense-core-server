@@ -11,8 +11,23 @@ You can run your application in dev mode that enables live coding using:
 
 ---
 
+## Sense Core Server (Backend)
+
+
+### Documentação
+
 - [Swagger](http://localhost:8080/q/swagger-ui/)
+
+
+### Observabilidade
+
 - [Jaeger](http://localhost:16686/)
+
+---
+
+## Sense Core Web (Frontend)
+
+- [App/Local](http://localhost:5143/)
 
 ---
 

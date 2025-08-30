@@ -3,11 +3,11 @@ package br.com.diegosneves.services;
 import br.com.diegosneves.domain.users.factory.UserFactory;
 import br.com.diegosneves.dto.UserEntityDTO;
 import br.com.diegosneves.exceptions.ErrorData;
+import br.com.diegosneves.exceptions.NotFoundException;
 import br.com.diegosneves.exceptions.UserConstraintsException;
 import br.com.diegosneves.modal.UserEntity;
 import br.com.diegosneves.repositories.UserRepository;
 import br.com.diegosneves.requests.user.UserCreateRequest;
-import br.com.diegosneves.responses.user.UserCreatedResponse;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
@@ -44,7 +44,7 @@ public class UserService {
             throw UserConstraintsException.with(ErrorData.of("userId", "User ID is null"));
         }
         final var fetchUser = this.userRepository.findByIdString(userId)
-                .orElseThrow(() -> UserConstraintsException.with(ErrorData.of("userId", "User not found")));
+                .orElseThrow(() -> NotFoundException.with(ErrorData.of("userId", "User not found")));
         return fetchUser.toDTO();
     }
 }

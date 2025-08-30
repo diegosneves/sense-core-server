@@ -42,7 +42,7 @@ services:
       - auth_services
 
   sense-core-server:
-    image: diegoneves/sense-core-server:latest
+    image: diegoneves/sense-core-server:sandbox
     container_name: sense-core-api
     ports:
       - "8080:8080"
@@ -66,6 +66,7 @@ services:
       - QUARKUS_OTEL_TRACES_EXPORTER=otlp
       # Para debug remoto - CORRIGIDO
       - JAVA_OPTS=-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005 --enable-native-access=ALL-UNNAMED
+    entrypoint: ["sh", "-c", "exec java $$JAVA_OPTS -jar /deployments/quarkus-run.jar"]
     networks:
       - sense_services
       - auth_services
