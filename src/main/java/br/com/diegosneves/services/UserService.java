@@ -23,7 +23,7 @@ public class UserService {
 
     public UserEntityDTO createUser(final UserCreateRequest request) {
         if (request == null) {
-            throw UserConstraintsException.with(ErrorData.of("request", "Request is null"));
+            throw UserConstraintsException.with(ErrorData.of("request", "Request cannot be null"));
         }
 
         final var aNewUser = UserFactory.create(
@@ -32,16 +32,16 @@ public class UserService {
                 request.email(),
                 request.phone(),
                 request.profile()
-                );
+        );
         final var savedUser = UserEntity.create(aNewUser);
-        final var createdUser = userRepository.save(savedUser);
+        final var createdUser = this.userRepository.save(savedUser);
         return createdUser.toDTO();
     }
 
 
     public UserEntityDTO fetchUser(final String userId) {
         if (userId == null) {
-            throw UserConstraintsException.with(ErrorData.of("userId", "User ID is null"));
+            throw UserConstraintsException.with(ErrorData.of("userId", "User ID cannot be null"));
         }
         final var fetchUser = this.userRepository.findByIdString(userId)
                 .orElseThrow(() -> NotFoundException.with(ErrorData.of("userId", "User not found")));
