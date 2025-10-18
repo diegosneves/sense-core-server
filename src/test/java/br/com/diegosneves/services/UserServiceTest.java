@@ -7,12 +7,14 @@ import br.com.diegosneves.exceptions.UserConstraintsException;
 import br.com.diegosneves.modal.UserEntity;
 import br.com.diegosneves.repositories.UserRepository;
 import br.com.diegosneves.requests.user.UserCreateRequest;
+import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Objects;
@@ -31,10 +33,11 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@ExtendWith(MockitoExtension.class)
+//@ExtendWith(MockitoExtension.class)
+//@QuarkusTest
 class UserServiceTest {
 
-    @InjectMocks
+//    @InjectMocks
     private UserService service;
 
     @Mock
@@ -42,6 +45,8 @@ class UserServiceTest {
 
     @BeforeEach
     void cleanUp() {
+        MockitoAnnotations.openMocks(this);
+        this.service = new UserService(this.repository);
         Mockito.reset(this.repository);
     }
 

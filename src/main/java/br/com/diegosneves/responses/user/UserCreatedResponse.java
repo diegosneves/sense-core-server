@@ -13,6 +13,7 @@ public record UserCreatedResponse(
         UserProfile profile,
         String username,
         String permissions,
+		Boolean enabled,
         Instant createdAt,
         Instant updatedAt
 ) {
@@ -27,6 +28,7 @@ public record UserCreatedResponse(
                 aDto.profile(),
                 aDto.username(),
                 aDto.profile().getDescription(),
+				aDto.enabled(),
                 aDto.createdAt(),
                 aDto.updatedAt()
         );
