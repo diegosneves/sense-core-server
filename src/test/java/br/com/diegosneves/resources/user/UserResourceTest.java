@@ -25,7 +25,7 @@ class UserResourceTest {
 
 	@Test
 	@DisplayName("Should return 400 when creating user without body")
-	void testCreateUserEndpointWithoutBody() {
+	void givenMissingRequestBody_whenCreatingUser_thenShouldReturnBadRequest() {
 		given()
 			.header("Content-Type", "application/json")
 			.when().post(API_USERS_PATH)
@@ -36,7 +36,7 @@ class UserResourceTest {
 	@Test
 	@DisplayName("Should create user successfully with valid request")
 	@Transactional
-	void testCreateUserEndpointWithValidRequest() {
+	void givenValidUserRequest_whenCreatingUser_thenShouldReturnCreatedUserSuccessfully() {
 		// Arrange
 		final var request = UserCreateRequest.of(
 			"John Doe",
@@ -66,7 +66,7 @@ class UserResourceTest {
 	@Test
 	@DisplayName("Should return 422 when creating user with empty name")
 	@Transactional
-	void testCreateUserWithEmptyName() {
+	void givenEmptyName_whenCreatingUser_thenShouldReturnValidationError() {
 		final var request = UserCreateRequest.of(
 			"",  // Nome vazio
 			"john@example.com",
@@ -87,7 +87,7 @@ class UserResourceTest {
 	@Test
 	@DisplayName("Should return 422 when creating user with null profile")
 	@Transactional
-	void testCreateUserWithNullProfile() {
+	void givenNullProfile_whenCreatingUser_thenShouldReturnValidationError() {
 		final var request = UserCreateRequest.of(
 			"John Doe",
 			"john@example.com",
@@ -108,7 +108,7 @@ class UserResourceTest {
 
 	@Test
 	@DisplayName("Should return 404 when fetching non-existent user")
-	void testFetchNonExistentUser() {
+	void givenNonExistentUserId_whenFetchingUser_thenShouldReturnNotFoundError() {
 		given()
 			.contentType(ContentType.JSON)
 			.when()
@@ -121,7 +121,7 @@ class UserResourceTest {
 	@Test
 	@DisplayName("Should fetch user successfully by ID")
 	@Transactional
-	void testFetchUserById() {
+	void givenValidUserId_whenFetchingUser_thenShouldReturnUserSuccessfully() {
 		// Primeiro, cria um usuário
 		final var createRequest = UserCreateRequest.of(
 			"Jane Doe",
@@ -157,9 +157,9 @@ class UserResourceTest {
 	}
 
 	@Test
-	@DisplayName("Should return 422 when creating user with null data")
+	@DisplayName("Should return 422 when creating user with empty or null data")
 	@Transactional
-	void testCreateUserWithNullInfos() {
+	void givenEmptyAndNullFields_whenCreatingUser_thenShouldReturnMultipleValidationErrors() {
 		final var request = UserCreateRequest.of(
 			"",
 			null,
