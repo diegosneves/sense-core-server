@@ -1,5 +1,6 @@
 package br.com.diegosneves.resources.user;
 
+import br.com.diegosneves.domain.pagination.PageControl;
 import br.com.diegosneves.domain.pagination.Pagination;
 import br.com.diegosneves.dto.UserEntityDTO;
 import br.com.diegosneves.exceptions.ApiErrorResponse;
@@ -102,7 +103,8 @@ public class UserResource {
 		@DefaultValue("ASC")
 		@QueryParam(value = "direction") final String direction
 	) {
-        final var response = this.userService.fetchAllUsers(search, page, perPage, sort, direction);
+		final var pageControl = PageControl.of(search, page, perPage, sort, direction);
+        final var response = this.userService.fetchAllUsers(pageControl);
         return Response.ok(response).build();
     }
 

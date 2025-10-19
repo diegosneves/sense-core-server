@@ -131,17 +131,7 @@ class UserResourceTest {
 			"janedoe"
 		);
 
-		final var userId = given()
-			.contentType(ContentType.JSON)
-			.body(createRequest)
-			.when()
-			.post(API_USERS_PATH)
-			.then()
-			.statusCode(200)
-			.extract()
-			.body()
-			.jsonPath()
-			.getString("id");
+		final var userId = createUserAndRetrieveId(createRequest);
 
 		// Depois, busca o usuário criado
 		given()
@@ -176,6 +166,56 @@ class UserResourceTest {
 			.then()
 			.statusCode(422)
 			.body("errors", hasSize(5));
+	}
+
+	@Test
+	@DisplayName("Should fetch all users successfully")
+	@Transactional
+	void givenPaginatedEndpoint_whenFetchingAllUsers_thenShouldReturnPagedResults() {
+		final var createRequest = UserCreateRequest.of(
+			"Jane Doe",
+			"jane@example.com",
+			"+5551996406959",
+			UserProfile.ADMIN,
+			"janedoe"
+		);
+
+		final var createRequest2 = UserCreateRequest.of(
+			"Paulo Doe",
+			"paulo@example.com",
+			"+5551996406960",
+			UserProfile.ADMIN,
+			"paulodoe"
+		);
+
+		createUserAndRetrieveId(createRequest);
+		createUserAndRetrieveId(createRequest2);
+
+		// Depois, busca o usuário criado
+		given()
+			.contentType(ContentType.JSON)
+			.when()
+			.get("/api/users/all?page=0&perPage=1")
+			.then()
+			.statusCode(200)
+			.body("currentPage", equalTo(0))
+			.body("perPage", equalTo(1))
+			.body("items", hasSize(1))
+			.body("items[0].name", equalTo("Jane Doe"));
+	}
+
+	private static String createUserAndRetrieveId(UserCreateRequest createRequest) {
+		return given()
+			.contentType(ContentType.JSON)
+			.body(createRequest)
+			.when()
+			.post(API_USERS_PATH)
+			.then()
+			.statusCode(200)
+			.extract()
+			.body()
+			.jsonPath()
+			.getString("id");
 	}
 
 }
