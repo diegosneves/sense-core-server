@@ -1,5 +1,8 @@
 package br.com.diegosneves.repositories;
 
+import br.com.diegosneves.domain.pagination.PageControl;
+import br.com.diegosneves.domain.pagination.Pagination;
+import br.com.diegosneves.dto.UserEntityDTO;
 import br.com.diegosneves.enums.UserProfile;
 import br.com.diegosneves.modal.UserEntity;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;
@@ -116,4 +119,43 @@ public class UserRepository implements PanacheRepository<UserEntity> {
     }
 
 
+	public List<UserEntity> findAllByPageControl(final PageControl pageControl) {
+
+		var users = this.findAll().stream();
+
+		// Aplicar filtro de busca
+		if (pageControl.search() != null && !pageControl.search().isBlank()) {
+			final var searchLower = pageControl.search().toLowerCase();
+			users = users.filter(user ->
+				user.name.toLowerCase().contains(searchLower) ||
+					user.username.toLowerCase().contains(searchLower) ||
+					user.email.toLowerCase().contains(searchLower) ||
+					(user.phone != null && user.phone.toLowerCase().contains(searchLower))
+			);
+		}
+
+		// Aplicar ordenação
+		if (pageControl.sort() != null && !pageControl.sort().isBlank()) {
+			final var isDescending = "desc".equalsIgnoreCase(pageControl.direction());
+			users = users.sorted((u1, u2) -> {
+				int comparison = switch (pageControl.sort().toLowerCase()) {
+					case "name" -> u1.name.compareToIgnoreCase(u2.name);
+					case "username" -> u1.username.compareToIgnoreCase(u2.username);
+					case "email" -> u1.email.compareToIgnoreCase(u2.email);
+					case "phone" -> {
+						String phone1 = u1.phone != null ? u1.phone : "";
+						String phone2 = u2.phone != null ? u2.phone : "";
+						yield phone1.compareToIgnoreCase(phone2);
+					}
+					case "profile" -> u1.profile.compareTo(u2.profile);
+					case "enabled" -> Boolean.compare(u1.enabled, u2.enabled);
+					default -> 0;
+				};
+				return isDescending ? -comparison : comparison;
+			});
+		}
+
+		// Após aplicar os filtros
+		return users.toList();
+	}
 }
