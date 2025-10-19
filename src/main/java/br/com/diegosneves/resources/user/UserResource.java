@@ -1,21 +1,26 @@
 package br.com.diegosneves.resources.user;
 
+import br.com.diegosneves.domain.pagination.Pagination;
+import br.com.diegosneves.dto.UserEntityDTO;
 import br.com.diegosneves.exceptions.ApiErrorResponse;
 import br.com.diegosneves.requests.user.UserCreateRequest;
 import br.com.diegosneves.responses.user.UserCreatedResponse;
 import br.com.diegosneves.services.UserService;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
 import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.tags.Tag;
 
@@ -68,6 +73,37 @@ public class UserResource {
     public Response fetchUser(@PathParam("userId") final String userId) {
         final var response = this.userService.fetchUser(userId);
         return Response.ok(UserCreatedResponse.of(response)).build();
+    }
+
+	@GET
+    @Path("/all")
+    @Operation(summary = "Fetch user", description = "Fetches a user by its ID")
+    @APIResponse(
+            responseCode = "200", description = "User fetched successfully",
+            content = @Content(schema = @Schema(implementation = Pagination.class))
+    )
+    @APIResponse(
+            responseCode = "404", description = "User not found",
+            content = @Content(schema = @Schema(implementation = ApiErrorResponse.class))
+    )
+    public Response fetchAllUser(
+		@Parameter(description = "Search term (optional)")
+		@QueryParam(value = "search") final String search,
+		@DefaultValue("0")
+		@Parameter(description = "Page number", required = true)
+		@QueryParam(value = "page") final int page,
+		@DefaultValue("10")
+		@Parameter(description = "Items per page", required = true)
+		@QueryParam(value = "perPage") final int perPage,
+		@Parameter(description = "Sort field")
+		@DefaultValue("name")
+		@QueryParam(value = "sort") final String sort,
+		@Parameter(description = "Sort direction (ASC or DESC)", schema = @Schema(defaultValue = "ASC"))
+		@DefaultValue("ASC")
+		@QueryParam(value = "direction") final String direction
+	) {
+        final var response = this.userService.fetchAllUsers(search, page, perPage, sort, direction);
+        return Response.ok(response).build();
     }
 
 }
