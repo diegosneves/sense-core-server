@@ -13,9 +13,6 @@ import br.com.diegosneves.requests.user.UserCreateRequest;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 
-import java.util.Collections;
-import java.util.List;
-
 @ApplicationScoped
 public class UserService {
 

@@ -1,8 +1,6 @@
 package br.com.diegosneves.repositories;
 
 import br.com.diegosneves.domain.pagination.PageControl;
-import br.com.diegosneves.domain.pagination.Pagination;
-import br.com.diegosneves.dto.UserEntityDTO;
 import br.com.diegosneves.enums.UserProfile;
 import br.com.diegosneves.modal.UserEntity;
 import io.quarkus.hibernate.orm.panache.PanacheRepository;

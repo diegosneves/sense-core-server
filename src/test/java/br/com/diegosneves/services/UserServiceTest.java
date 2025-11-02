@@ -7,15 +7,11 @@ import br.com.diegosneves.exceptions.UserConstraintsException;
 import br.com.diegosneves.modal.UserEntity;
 import br.com.diegosneves.repositories.UserRepository;
 import br.com.diegosneves.requests.user.UserCreateRequest;
-import io.quarkus.test.junit.QuarkusTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -27,17 +23,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-//@ExtendWith(MockitoExtension.class)
-//@QuarkusTest
 class UserServiceTest {
 
-//    @InjectMocks
     private UserService service;
 
     @Mock
@@ -198,11 +190,11 @@ class UserServiceTest {
         final var entity = UserEntity.create(user);
         entity.id = expectedId;
 
-        when(this.repository.findByIdString(eq(expectedId))).thenReturn(Optional.of(entity));
+        when(this.repository.findByIdString(expectedId)).thenReturn(Optional.of(entity));
 
         final var actual = this.service.fetchUser(expectedId);
 
-        verify(this.repository, times(1)).findByIdString(eq(expectedId));
+        verify(this.repository, times(1)).findByIdString(expectedId);
 
         assertNotNull(actual);
         assertEquals(expectedId, actual.id(), "User id is not the same");
